@@ -18,6 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+header('Content-Type: application/json; charset=UTF-8');
+
 //Root domain of galleries.
 $root = "fotobiksen.dk";
 
@@ -29,6 +31,37 @@ $galleries = array();
 
 //Return value.
 $ret = "";
+
+//Ilo creates an HTML file with language set to en-US and containing local characters (in this case from Denmark).
+//This does not work out well for PHP, this function from "piopier" on the loadHTML PHP manual page
+//sets the right encoding, so that PHP does not choke.
+mb_detect_order("ASCII,UTF-8,ISO-8859-1,windows-1252,iso-8859-15");
+function loadHTMLprepare($url, $encod='')
+{
+	$content = file_get_contents($url);
+	if (!empty($content)) 
+	{
+		if (empty($encod))
+		{
+			$encod  = mb_detect_encoding($content);
+		}
+        $headpos = mb_strpos($content,'<head>');
+        if (FALSE=== $headpos)
+        {
+			$headpos= mb_strpos($content,'<HEAD>');
+		}
+		if (FALSE!== $headpos)
+		{
+			$headpos+=6;
+			$content = mb_substr($content,0,$headpos) . '<meta http-equiv="Content-Type" content="text/html; charset='.$encod.'">' .mb_substr($content,$headpos);
+		}
+		$content=mb_convert_encoding($content, 'HTML-ENTITIES', $encod);
+	}
+	$dom = new DomDocument;
+	$res = $dom->loadHTML($content);
+	if (!$res) return FALSE;
+	return $dom;
+}
 
 //Open current dir on the server.
 if ($handle = opendir(getcwd())) {
@@ -47,8 +80,7 @@ if ($handle = opendir(getcwd())) {
 					if (strcmp($metas["generator"], "iloapp 2.1") === 0)
 					{
 						//Get the galley title from the page title.
-						$doc = new DOMDocument();
-						$doc->loadHTMLFile($filename);
+						$doc = loadNprepare($filename);					
 						$title = $doc->getElementsByTagName('title');
 						$title = $title->item(0)->nodeValue;
 						
@@ -83,13 +115,12 @@ if (strlen($search_str) > 0)
 	{
 		if (stripos($galleries[$key]->title, $search_str) === false)
 		{
-			//echo $i + ',';
 			unset($galleries[$key]);
 		}
 	}
 }
 
-$ret = json_encode($galleries, 2);
+$ret = json_encode($galleries);
 
 echo $ret;
 
