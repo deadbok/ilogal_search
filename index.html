@@ -35,9 +35,18 @@ function getSearchResults(str)
 			
 			var galleries = JSON.parse(xmlhttp.responseText);
 			
+			var lastch = 'A';
+			
 			for (var gallery in galleries)
 			{
-				document.getElementById("galleries").innerHTML += '<br /><a href="' + galleries[gallery].title + '">'+ galleries[gallery].title + '</a>';
+				
+				var span = document.getElementById("galleries");
+				if (lastch !== galleries[gallery].title[0])
+				{
+					lastch = galleries[gallery].title[0];
+					span.innerHTML += '<br /><h2>' + lastch + '</h2>';
+				}
+				span.innerHTML += '<br /><a href="' + galleries[gallery].url + '">'+ galleries[gallery].title + '</a>';
 			}
 		}
 	};

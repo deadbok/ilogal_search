@@ -36,7 +36,7 @@ $ret = "";
 //This does not work out well for PHP, this function from "piopier" on the loadHTML PHP manual page
 //sets the right encoding, so that PHP does not choke.
 mb_detect_order("ASCII,UTF-8,ISO-8859-1,windows-1252,iso-8859-15");
-function loadHTMLprepare($url, $encod='')
+function loadHTMLlocal($url, $encod='')
 {
 	$content = file_get_contents($url);
 	if (!empty($content)) 
@@ -58,7 +58,7 @@ function loadHTMLprepare($url, $encod='')
 		$content=mb_convert_encoding($content, 'HTML-ENTITIES', $encod);
 	}
 	$dom = new DomDocument;
-	$res = $dom->loadHTML($content);
+	@$res = $dom->loadHTML($content, LIBXML_NOWARNING);
 	if (!$res) return FALSE;
 	return $dom;
 }
@@ -67,11 +67,12 @@ function loadHTMLprepare($url, $encod='')
 if ($handle = opendir(getcwd())) {
     while (false !== ($entry = readdir($handle)))
     {
-		//Every gallery has an index.html in a subdirectory
-		if (is_dir($entry))
+		if ( strpos($entry, '.') !== 0)
 		{
-			if ( strpos($entry, '.') !== 0)
+			//Every gallery has an index.html in a subdirectory
+			if (is_dir($doc_root . $entry))
 			{
+
 				$filename = getcwd() . '/' . $entry . "/index.html";
 				if (is_file($filename))
 				{	
@@ -80,7 +81,7 @@ if ($handle = opendir(getcwd())) {
 					if (strcmp($metas["generator"], "iloapp 2.1") === 0)
 					{
 						//Get the galley title from the page title.
-						$doc = loadNprepare($filename);					
+						$doc = loadHTMLlocal($filename);					
 						$title = $doc->getElementsByTagName('title');
 						$title = $title->item(0)->nodeValue;
 						
@@ -90,7 +91,7 @@ if ($handle = opendir(getcwd())) {
 						//Galleries are in subdomains named the same as the directory.
 						$gallery->url = "http://" . $entry . "." . $root;
 						
-						$galleries[$entry] = $gallery;
+						$galleries[$title] = $gallery;
 					}
 				}
 			}

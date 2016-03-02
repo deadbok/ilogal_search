@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Untitled Document</title>
+<link href="css/default.css" rel="stylesheet" type="text/css" />
+   <script>
+function getSearchResults(str)
+{
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function()
+	{
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+		{
+			document.getElementById("galleries").innerHTML = "";
+			
+			var galleries = JSON.parse(xmlhttp.responseText);
+			
+			var lastch = 'A';
+			
+			for (var gallery in galleries)
+			{
+				
+				var span = document.getElementById("galleries");
+				if (lastch !== galleries[gallery].title[0])
+				{
+					lastch = galleries[gallery].title[0];
+					span.innerHTML += '<br /><h2>' + lastch + '</h2>';
+				}
+				span.innerHTML += '<br /><a href="' + galleries[gallery].url + '">'+ galleries[gallery].title + '</a>';
+			}
+		}
+	};
+	xmlhttp.open("GET", "ilosearch.php?q=" + str, true);
+	xmlhttp.send();
+}
+	</script>
+</head>
+
+<body  onload="getSearchResults(document.getElementById('search').value)">
+<table width="100%" height="100%" border="0" align="center" bordercolor="#A68D69" bgcolor="#A68D69">
+  <tr>
+    <td align="center" valign="middle" bordercolor="#A68D69" bgcolor="#A68D69"><table border="0">
+		<tr ><td>&nbsp;</td></tr>
+      <tr>
+
+	          <td   width="754" height="200">
+			   <form align="center" action="javascript:getSearchResults(document.getElementById('search').value)">
+	   <input type="search" id="search" onkeyup="getSearchResults(this.value)" />
+	    <input type="submit" value="Søg">
+   </form>
+   <p><span id="galleries"></span></p>
+          </td>
+      <tr height="100%"><td>&nbsp;</td></tr>	  
+    </table></td>
+  </tr>
+</table>
+<div class="style3"></div>
+</body>
+</html>
