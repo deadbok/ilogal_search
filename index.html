@@ -1,19 +1,54 @@
+<!--
+	Client part of ilegal_search, for searching galleries.
+	
+    Copyright (C) 2016 by Martin Bo Kristensen Grønholdt.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+-->
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-   <title>Aakjær & Butterschøn</title>
+   <title>Gallerier</title>
    <meta charset="utf-8" />
-   <meta name="generator" content="iloapp 2.1"/>
-   <link rel="shortcut icon" href="//ilostatic.one.com/iloapp/gallery/images/favicon.ico" type="image/vnd.microsoft.icon"/>
-</head>
-<body>
+   <meta name="generator" content="deadbok"/>
    <script>
-      (function () {
-         var script = document.createElement('script');
-         script.src = '//ilostatic.one.com/iloapp/gallery/js/init.js?' + (new Date).getTime();
-         document.documentElement.firstChild.appendChild(script);
-      })();
-   </script>
-   <noscript><iframe src="//ilostatic.one.com/iloapp/gallery/html/nojs_1_en-US.html" frameBorder="0" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%;"></iframe></noscript>
+function getSearchResults(str)
+{
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function()
+	{
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+		{
+			document.getElementById("galleries").innerHTML = "";
+			
+			var galleries = JSON.parse(xmlhttp.responseText);
+			
+			for (var gallery in galleries)
+			{
+				document.getElementById("galleries").innerHTML += '<br /><a href="' + galleries[gallery].title + '">'+ galleries[gallery].title + '</a>';
+			}
+		}
+	};
+	xmlhttp.open("GET", "ilosearch.php?q=" + str, true);
+	xmlhttp.send();
+}
+	</script>
+</head>
+<body onload="getSearchResults(document.getElementById('search').value)">
+   <form>
+	   <input type="search" id="search" onkeyup="getSearchResults(this.value)" />
+   </form>
+   <p><span id="galleries"></span></p>
 </body>
 </html>
